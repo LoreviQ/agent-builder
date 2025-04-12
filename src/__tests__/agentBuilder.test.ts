@@ -1,6 +1,6 @@
 import { AgentBuilder } from '../agentBuilder';
 import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../providers';
-import { Provider, ShapeDescriptor, FieldDescriptor } from '../types';
+import { Provider, ShapeDescriptor } from '../types';
 import { joinWithNewlines } from '../utils';
 import * as genai from '../genai';
 import * as processing from '../processing/output';
@@ -152,7 +152,7 @@ describe('AgentBuilder', () => {
         const builder = new AgentBuilder(initialPrompt);
         const newProvider: Provider = { key: "newKey", type: 'prompt', index: 1, title: "New Provider", execute: async () => "New Content" };
 
-        builder.setProvider("newKey", newProvider);
+        builder.setProvider(newProvider, "newKey");
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
@@ -168,7 +168,7 @@ describe('AgentBuilder', () => {
         const updatedProvider: Provider = { key: "originalKey", type: 'prompt', index: 2, title: "Updated Provider", execute: async () => "Updated Content" };
 
         builder.addProvider(originalProvider); // Add the original provider first
-        builder.setProvider("originalKey", updatedProvider); // Overwrite with setProvider
+        builder.setProvider(updatedProvider, "originalKey"); // Overwrite with setProvider
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
@@ -186,6 +186,27 @@ describe('AgentBuilder', () => {
         builder.addProvider(provider1);
 
         expect(() => builder.addProvider(provider2)).toThrow('Provider with key "duplicateKey" already exists.');
+    });
+
+    it('should add a provider with an explicit key using addProvider', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const provider: Provider = { key: "internalKey", type: 'prompt', index: 1, title: "Explicit Key Provider", execute: async () => "Explicit Content" };
+        const explicitKey = "providedKey";
+
+        builder.addProvider(provider, explicitKey);
+
+        const expectedPrompt = joinWithNewlines([
+            initialPrompt,
+            "**Explicit Key Provider**\nExplicit Content",
+            defaultEndPromptString
+        ]);
+        expect(await builder.prompt()).toBe(expectedPrompt);
+
+        // Ensure the provider was stored under the explicit key, not the internal one
+        const duplicateProvider: Provider = { key: "anotherInternalKey", type: 'prompt', index: 2, execute: async () => "Duplicate Content" };
+        expect(() => builder.addProvider(duplicateProvider, explicitKey)).toThrow(`Provider with key "${explicitKey}" already exists.`);
+        // Should not throw if using the internal key of the original provider
+        expect(() => builder.addProvider(duplicateProvider, "internalKey")).not.toThrow();
     });
 
     it('setOutput should add outputShape and outputReminder providers', async () => {

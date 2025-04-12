@@ -21,16 +21,18 @@ export class AgentBuilder {
         this.providers.set(initialProvider.key, initialProvider);
     }
 
-    addProvider(provider: Provider): this {
-        if (this.providers.has(provider.key)) {
-            throw new Error(`Provider with key "${provider.key}" already exists.`);
+    addProvider(provider: Provider, key?: string): this {
+        let providerKey = key ?? provider.key;
+        if (this.providers.has(providerKey)) {
+            throw new Error(`Provider with key "${providerKey}" already exists.`);
         }
-        this.providers.set(provider.key, provider);
+        this.providers.set(providerKey, provider);
         return this;
     }
 
-    setProvider(key: string, provider: Provider): this {
-        this.providers.set(key, provider);
+    setProvider(provider: Provider, key?: string): this {
+        let providerKey = key ?? provider.key;
+        this.providers.set(providerKey, provider);
         return this;
     }
 
@@ -69,8 +71,8 @@ export class AgentBuilder {
     }
 
     setOutput(shapeDescriptor: ShapeDescriptor): this {
-        this.setProvider('outputShape', outputProvider(shapeDescriptor));
-        this.setProvider('outputReminder', outputReminder(shapeDescriptor));
+        this.setProvider(outputProvider(shapeDescriptor), 'outputShape');
+        this.setProvider(outputReminder(shapeDescriptor), 'outputReminder');
         this.outputShape = shapeDescriptor;
         return this;
     }

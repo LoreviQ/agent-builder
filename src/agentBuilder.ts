@@ -37,7 +37,7 @@ export class AgentBuilder {
         }
 
         // Sort providers by index
-        filteredProviders.sort((a, b) => a.index - b.index);
+        filteredProviders.sort((a, b) => b.index - a.index);
 
         // Execute providers
         const results = await Promise.all(
@@ -62,6 +62,6 @@ export class AgentBuilder {
 
     async system(): Promise<string> {
         const providerContent = await this.executeProviders('system');
-        return joinWithNewlines([providerContent, this.settings.endPromptString]);
+        return providerContent ?? "";
     }
 }

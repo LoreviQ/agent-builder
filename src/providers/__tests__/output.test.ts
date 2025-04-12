@@ -1,8 +1,8 @@
 import { outputProvider, outputReminder } from '../output';
-import { FieldDescriptor } from '../../types'; // Adjust path if FieldDescriptor is elsewhere
+import { ShapeDescriptor } from '../../types';
 
 describe('outputProvider', () => {
-    const sampleShapeDescriptor: Record<string, FieldDescriptor> = {
+    const sampleShapeDescriptor: ShapeDescriptor = {
         name: { type: 'string', description: 'The name of the item.' },
         count: { type: 'number', description: 'How many items there are.' },
         isActive: { type: 'boolean', description: 'Whether the item is active.' },
@@ -64,7 +64,7 @@ describe('outputProvider', () => {
 });
 
 describe('outputReminder', () => {
-    const sampleShapeDescriptor: Record<string, FieldDescriptor> = {
+    const sampleShapeDescriptor: ShapeDescriptor = {
         name: { type: 'string', description: 'Unused description' }, // Description is not used in the output string
         count: { type: 'number', description: 'Ignored' },
         isActive: { type: 'boolean', description: 'Also ignored' },

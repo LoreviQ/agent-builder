@@ -15,7 +15,7 @@ describe('outputProvider', () => {
         expect(provider.key).toBe('outputShape');
         expect(provider.type).toBe('system');
         expect(provider.title).toBe('Output Shape');
-        expect(provider.index).toBe(100); // Default index
+        expect(provider.index).toBe(-100); // Default index
     });
 
     it('should return a provider object with the specified index', () => {
@@ -75,7 +75,7 @@ describe('outputReminder', () => {
         expect(provider.key).toBe('outputReminder');
         expect(provider.type).toBe('prompt'); // Should be prompt type
         expect(provider.title).toBe('Output Reminder');
-        expect(provider.index).toBe(100); // Default index
+        expect(provider.index).toBe(-100); // Default index
     });
 
     it('should return a provider object with the specified index', () => {

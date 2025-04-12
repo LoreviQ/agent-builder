@@ -271,6 +271,34 @@ describe('AgentBuilder', () => {
         expect(promptInstruction).toContain(defaultEndPromptString); // Ensure end prompt string is still there
     });
 
+    it('setOutput should remove outputShape and outputReminder providers when called with no arguments', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+
+        // Set an initial shape
+        builder.setOutput(sampleShapeDescriptor);
+
+        // Verify providers are present
+        let systemInstruction = await builder.system();
+        let promptInstruction = await builder.prompt();
+        expect(systemInstruction).toContain('Output Shape');
+        expect(promptInstruction).toContain('Output Reminder');
+
+        // Reset the output shape
+        builder.setOutput(); // Call without arguments
+
+        // Verify providers are removed
+        systemInstruction = await builder.system();
+        promptInstruction = await builder.prompt();
+        expect(systemInstruction).not.toContain('Output Shape');
+        expect(systemInstruction).not.toContain('"characterName": "(string) Name"');
+        expect(promptInstruction).not.toContain('Output Reminder');
+        expect(promptInstruction).not.toContain('{"characterName" : string, "level" : number}');
+
+        // Ensure the base prompt and end string are still correct
+        expect(await builder.prompt()).toBe(`${initialPrompt}\n\n${defaultEndPromptString}`);
+        expect(await builder.system()).toBe(""); // Assuming no other system providers were added
+    });
+
     it('generateResponse should return raw string if outputShape is not set', async () => {
         const builder = new AgentBuilder(initialPrompt);
         const rawResponse = "This is a raw response.";

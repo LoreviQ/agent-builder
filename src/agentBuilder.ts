@@ -106,10 +106,16 @@ export class AgentBuilder {
     /**
      * Configures the agent to expect a specific JSON output shape.
      * Adds providers to guide the AI model and automatically parses the response.
-     * @param shapeDescriptor An object describing the expected JSON structure, types, and descriptions.
+     * @param shapeDescriptor An object describing the expected JSON structure, types, and descriptions. If not provided, the output shape is removed.
      * @returns The AgentBuilder instance for chaining.
      */
-    setOutput(shapeDescriptor: ShapeDescriptor): this {
+    setOutput(shapeDescriptor?: ShapeDescriptor): this {
+        if (!shapeDescriptor) {
+            this.deleteProvider('outputShape');
+            this.deleteProvider('outputReminder');
+            this.outputShape = null;
+            return this;
+        }
         this.setProvider(outputProvider(shapeDescriptor), 'outputShape');
         this.setProvider(outputReminder(shapeDescriptor), 'outputReminder');
         this.outputShape = shapeDescriptor;

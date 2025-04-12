@@ -2,6 +2,7 @@ export type ProviderType = 'system' | 'prompt';
 
 export type Provider = {
     type: ProviderType;
-    title: string;
+    index: number;
+    title?: string;
     execute: () => Promise<string>;
 };

@@ -1,7 +1,7 @@
 import { Provider, ProviderType, AgentBuilderSettings } from "./types";
 import { promptProvider } from "./providers";
 import { joinWithNewlines } from "./utils";
-import { generateResponse as generateTextResponse } from "./genai/text";
+import { generateResponse as generateTextResponse } from "./genai";
 
 
 const defaultSettings: AgentBuilderSettings = {

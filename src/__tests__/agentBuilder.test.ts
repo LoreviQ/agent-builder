@@ -1,7 +1,8 @@
 import { AgentBuilder } from '../agentBuilder';
-import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../providers/prompt';
+import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../providers';
 import { Provider } from '../types';
 import { joinWithNewlines } from '../utils';
+
 describe('AgentBuilder', () => {
     const initialPrompt = "Initial Prompt";
     const defaultEndPromptString = "**OUTPUT**";

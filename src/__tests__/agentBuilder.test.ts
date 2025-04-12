@@ -1,11 +1,29 @@
 import { AgentBuilder } from '../agentBuilder';
 import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../providers';
-import { Provider } from '../types';
+import { Provider, ShapeDescriptor, FieldDescriptor } from '../types';
 import { joinWithNewlines } from '../utils';
+import * as genai from '../genai';
+import * as processing from '../processing/output';
+
+jest.mock('../genai');
+jest.mock('../processing/output');
+
+const mockGenerateTextResponse = genai.generateResponse as jest.Mock;
+const mockProcessOutput = processing.processOutput as jest.Mock;
 
 describe('AgentBuilder', () => {
     const initialPrompt = "Initial Prompt";
     const defaultEndPromptString = "**OUTPUT**";
+
+    beforeEach(() => {
+        mockGenerateTextResponse.mockReset();
+        mockProcessOutput.mockReset();
+    });
+
+    const sampleShapeDescriptor: ShapeDescriptor = {
+        characterName: { type: 'string', description: 'Name' },
+        level: { type: 'number', description: 'Level' },
+    };
 
     it('should initialize with a default prompt and default settings', async () => {
         const builder = new AgentBuilder(initialPrompt);
@@ -168,5 +186,70 @@ describe('AgentBuilder', () => {
         builder.addProvider(provider1);
 
         expect(() => builder.addProvider(provider2)).toThrow('Provider with key "duplicateKey" already exists.');
+    });
+
+    it('setOutput should add outputShape and outputReminder providers', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        builder.setOutput(sampleShapeDescriptor);
+
+        const systemInstruction = await builder.system();
+        const promptInstruction = await builder.prompt();
+
+        // Check if system instructions contain the output shape description
+        expect(systemInstruction).toContain('Output Shape');
+        expect(systemInstruction).toContain('"characterName": "(string) Name"');
+        expect(systemInstruction).toContain('"level": "(number) Level"');
+
+        // Check if prompt instructions contain the output reminder
+        expect(promptInstruction).toContain('Output Reminder');
+        expect(promptInstruction).toContain('{"characterName" : string, "level" : number}');
+        expect(promptInstruction).toContain(defaultEndPromptString); // Ensure end prompt string is still there
+    });
+
+    it('generateResponse should return raw string if outputShape is not set', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const rawResponse = "This is a raw response.";
+        mockGenerateTextResponse.mockResolvedValue(rawResponse);
+
+        const result = await builder.generateResponse();
+
+        expect(result).toBe(rawResponse);
+        expect(mockGenerateTextResponse).toHaveBeenCalled();
+        expect(mockProcessOutput).not.toHaveBeenCalled();
+    });
+
+    it('generateResponse should call processOutput if outputShape is set', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        builder.setOutput(sampleShapeDescriptor);
+
+        const rawResponse = '```json{"characterName": "Bob", "level": "5"}```';
+        const processedResponse = { characterName: 'Bob', level: 5 };
+
+        mockGenerateTextResponse.mockResolvedValue(rawResponse);
+        mockProcessOutput.mockReturnValue(processedResponse); // Use mockReturnValue for sync mock
+
+        const result = await builder.generateResponse();
+
+        expect(result).toEqual(processedResponse);
+        expect(mockGenerateTextResponse).toHaveBeenCalled();
+        expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);
+    });
+
+    it('generateResponse should propagate errors from processOutput', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        builder.setOutput(sampleShapeDescriptor);
+
+        const rawResponse = 'invalid json';
+        const processingError = new Error('Failed to parse JSON');
+
+        mockGenerateTextResponse.mockResolvedValue(rawResponse);
+        mockProcessOutput.mockImplementation(() => { // Use mockImplementation to throw
+            throw processingError;
+        });
+
+        await expect(builder.generateResponse()).rejects.toThrow(processingError);
+
+        expect(mockGenerateTextResponse).toHaveBeenCalled();
+        expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);
     });
 });

@@ -1,7 +1,8 @@
-import { Provider, ProviderType, AgentBuilderSettings } from "./types";
-import { promptProvider } from "./providers";
+import { Provider, ProviderType, AgentBuilderSettings, ShapeDescriptor } from "./types";
+import { promptProvider, outputProvider, outputReminder } from "./providers";
 import { joinWithNewlines } from "./utils";
 import { generateResponse as generateTextResponse } from "./genai";
+import { processOutput } from "./processing/output";
 
 
 const defaultSettings: AgentBuilderSettings = {
@@ -12,6 +13,7 @@ const defaultSettings: AgentBuilderSettings = {
 export class AgentBuilder {
     private providers: Map<string, Provider> = new Map();
     private settings: AgentBuilderSettings;
+    private outputShape: ShapeDescriptor | null = null;
 
     constructor(prompt: string, settings?: AgentBuilderSettings) {
         this.settings = { ...defaultSettings, ...settings };
@@ -66,6 +68,13 @@ export class AgentBuilder {
         return joinWithNewlines(results.filter(result => result !== undefined));
     }
 
+    setOutput(shapeDescriptor: ShapeDescriptor): this {
+        this.setProvider('outputShape', outputProvider(shapeDescriptor));
+        this.setProvider('outputReminder', outputReminder(shapeDescriptor));
+        this.outputShape = shapeDescriptor;
+        return this;
+    }
+
     async prompt(): Promise<string> {
         const providerContent = await this.executeProviders('prompt');
         return joinWithNewlines([providerContent, this.settings.endPromptString]);
@@ -76,11 +85,15 @@ export class AgentBuilder {
         return providerContent ?? "";
     }
 
-    async generateResponse(): Promise<string> {
+    async generateResponse(): Promise<string | Record<string, any>> {
         const systemInstruction = await this.system();
         const userPrompt = await this.prompt();
 
         const response = await generateTextResponse(userPrompt, this.settings.model!, systemInstruction);
-        return response;
+        if (!this.outputShape) {
+            return response;
+        }
+        // TODO: Handle graceful errors (repeat query ideally)
+        return processOutput(this.outputShape, response);
     }
 }

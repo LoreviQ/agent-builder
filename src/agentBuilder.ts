@@ -8,16 +8,25 @@ const defaultSettings: AgentBuilderSettings = {
 };
 
 export class AgentBuilder {
-    private providers: Provider[] = [];
+    private providers: Map<string, Provider> = new Map();
     private settings: AgentBuilderSettings;
 
     constructor(prompt: string, settings?: AgentBuilderSettings) {
         this.settings = { ...defaultSettings, ...settings };
-        this.providers.push(promptProvider(prompt));
+        const initialProvider = promptProvider(prompt);
+        this.providers.set(initialProvider.key, initialProvider);
     }
 
     addProvider(provider: Provider): this {
-        this.providers.push(provider);
+        if (this.providers.has(provider.key)) {
+            throw new Error(`Provider with key "${provider.key}" already exists.`);
+        }
+        this.providers.set(provider.key, provider);
+        return this;
+    }
+
+    setProvider(key: string, provider: Provider): this {
+        this.providers.set(key, provider);
         return this;
     }
 
@@ -31,7 +40,7 @@ export class AgentBuilder {
 
     private async executeProviders(type: ProviderType): Promise<string | undefined> {
         // Filter providers by type
-        const filteredProviders = this.providers.filter(provider => provider.type === type);
+        const filteredProviders = Array.from(this.providers.values()).filter(provider => provider.type === type);
         if (filteredProviders.length === 0) {
             return undefined;
         }

@@ -128,4 +128,44 @@ describe('AgentBuilder', () => {
         // Restore console.error
         consoleErrorSpy.mockRestore();
     });
+
+    it('should add a new provider using setProvider', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const newProvider: Provider = { key: "newKey", type: 'prompt', index: 1, title: "New Provider", execute: async () => "New Content" };
+
+        builder.setProvider("newKey", newProvider);
+
+        const expectedPrompt = joinWithNewlines([
+            initialPrompt,
+            "**New Provider**\nNew Content",
+            defaultEndPromptString
+        ]);
+        expect(await builder.prompt()).toBe(expectedPrompt);
+    });
+
+    it('should overwrite an existing provider using setProvider', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const originalProvider: Provider = { key: "originalKey", type: 'prompt', index: 1, title: "Original Provider", execute: async () => "Original Content" };
+        const updatedProvider: Provider = { key: "originalKey", type: 'prompt', index: 2, title: "Updated Provider", execute: async () => "Updated Content" };
+
+        builder.addProvider(originalProvider); // Add the original provider first
+        builder.setProvider("originalKey", updatedProvider); // Overwrite with setProvider
+
+        const expectedPrompt = joinWithNewlines([
+            initialPrompt,
+            "**Updated Provider**\nUpdated Content",
+            defaultEndPromptString
+        ]);
+        expect(await builder.prompt()).toBe(expectedPrompt);
+    });
+
+    it('should throw an error when adding a provider with a duplicate key using addProvider', () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const provider1: Provider = { key: "duplicateKey", type: 'prompt', index: 1, execute: async () => "Content 1" };
+        const provider2: Provider = { key: "duplicateKey", type: 'prompt', index: 2, execute: async () => "Content 2" };
+
+        builder.addProvider(provider1);
+
+        expect(() => builder.addProvider(provider2)).toThrow('Provider with key "duplicateKey" already exists.');
+    });
 });

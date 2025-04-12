@@ -1,10 +1,12 @@
 import { Provider, ProviderType, AgentBuilderSettings } from "./types";
 import { promptProvider } from "./providers";
 import { joinWithNewlines } from "./utils";
+import { generateResponse as generateTextResponse } from "./genai/text";
 
 
 const defaultSettings: AgentBuilderSettings = {
-    endPromptString: "**OUTPUT**"
+    endPromptString: "**OUTPUT**",
+    model: "gemini-2.0-flash"
 };
 
 export class AgentBuilder {
@@ -72,5 +74,13 @@ export class AgentBuilder {
     async system(): Promise<string> {
         const providerContent = await this.executeProviders('system');
         return providerContent ?? "";
+    }
+
+    async generateResponse(): Promise<string> {
+        const systemInstruction = await this.system();
+        const userPrompt = await this.prompt();
+
+        const response = await generateTextResponse(userPrompt, this.settings.model!, systemInstruction);
+        return response;
     }
 }

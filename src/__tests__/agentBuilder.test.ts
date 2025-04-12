@@ -209,6 +209,50 @@ describe('AgentBuilder', () => {
         expect(() => builder.addProvider(duplicateProvider, "internalKey")).not.toThrow();
     });
 
+    it('should delete an existing provider', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const providerToDelete: Provider = { key: "toDelete", type: 'prompt', index: 1, title: "To Delete", execute: async () => "Delete Content" };
+        const remainingProvider: Provider = { key: "toKeep", type: 'prompt', index: 2, title: "To Keep", execute: async () => "Keep Content" };
+
+        builder.addProvider(providerToDelete);
+        builder.addProvider(remainingProvider);
+
+        // Verify both are present initially
+        let expectedPrompt = joinWithNewlines([
+            initialPrompt,
+            "**To Keep**\nKeep Content",
+            "**To Delete**\nDelete Content",
+            defaultEndPromptString
+        ]);
+        expect(await builder.prompt()).toBe(expectedPrompt);
+
+        // Delete one provider
+        builder.deleteProvider("toDelete");
+
+        // Verify the deleted provider is gone
+        expectedPrompt = joinWithNewlines([
+            initialPrompt,
+            "**To Keep**\nKeep Content",
+            defaultEndPromptString
+        ]);
+        expect(await builder.prompt()).toBe(expectedPrompt);
+    });
+
+    it('should do nothing when deleting a non-existent provider', async () => {
+        const builder = new AgentBuilder(initialPrompt);
+        const existingProvider: Provider = { key: "exists", type: 'prompt', index: 1, title: "Exists", execute: async () => "Exists Content" };
+
+        builder.addProvider(existingProvider);
+
+        const initialPromptContent = await builder.prompt();
+
+        // Attempt to delete a key that doesn't exist
+        builder.deleteProvider("nonExistentKey");
+
+        // Verify the prompt content is unchanged
+        expect(await builder.prompt()).toBe(initialPromptContent);
+    });
+
     it('setOutput should add outputShape and outputReminder providers', async () => {
         const builder = new AgentBuilder(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);

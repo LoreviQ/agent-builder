@@ -1,6 +1,6 @@
 import { Provider, ShapeDescriptor } from "../types";
 
-export const outputProvider = (shapeDescriptor: ShapeDescriptor, index = 100): Provider => {
+export const outputProvider = (shapeDescriptor: ShapeDescriptor, index = -100): Provider => {
     // Check if the shapeDescriptor is empty
     if (Object.keys(shapeDescriptor).length === 0) {
         throw new Error('outputProvider requires a non-empty shapeDescriptor.');
@@ -26,7 +26,7 @@ export const outputProvider = (shapeDescriptor: ShapeDescriptor, index = 100): P
     };
 };
 
-export const outputReminder = (shapeDescriptor: ShapeDescriptor, index = 100): Provider => {
+export const outputReminder = (shapeDescriptor: ShapeDescriptor, index = -100): Provider => {
     // Check if the shapeDescriptor is empty
     if (Object.keys(shapeDescriptor).length === 0) {
         throw new Error('outputReminder requires a non-empty shapeDescriptor.');

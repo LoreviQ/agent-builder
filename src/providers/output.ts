@@ -25,3 +25,25 @@ export const outputProvider = <T extends Record<string, FieldDescriptor>>(shapeD
         }
     };
 };
+
+export const outputReminder = <T extends Record<string, FieldDescriptor>>(shapeDescriptor: T, index = 100): Provider => {
+    // Check if the shapeDescriptor is empty
+    if (Object.keys(shapeDescriptor).length === 0) {
+        throw new Error('outputReminder requires a non-empty shapeDescriptor.');
+    }
+
+    return {
+        key: `outputReminder`,
+        type: 'prompt',
+        title: `Output Reminder`,
+        index,
+        execute: async () => {
+            // Generate the compact JSON string representation
+            const entries = Object.entries(shapeDescriptor);
+            const jsonParts = entries.map(([key, descriptor]) => `"${key}" : ${descriptor.type}`);
+            const jsonString = `{${jsonParts.join(', ')}}`; // Add spaces for readability
+
+            return `Remember to provide the output strictly in the specified JSON format: ${jsonString}`;
+        }
+    };
+};

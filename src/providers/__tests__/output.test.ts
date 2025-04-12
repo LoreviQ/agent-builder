@@ -1,4 +1,4 @@
-import { outputProvider } from '../output';
+import { outputProvider, outputReminder } from '../output';
 import { FieldDescriptor } from '../../types'; // Adjust path if FieldDescriptor is elsewhere
 
 describe('outputProvider', () => {
@@ -60,5 +60,45 @@ describe('outputProvider', () => {
         expect(() => {
             outputProvider({});
         }).toThrow('outputProvider requires a non-empty shapeDescriptor.');
+    });
+});
+
+describe('outputReminder', () => {
+    const sampleShapeDescriptor: Record<string, FieldDescriptor> = {
+        name: { type: 'string', description: 'Unused description' }, // Description is not used in the output string
+        count: { type: 'number', description: 'Ignored' },
+        isActive: { type: 'boolean', description: 'Also ignored' },
+    };
+
+    it('should return a provider object with correct defaults', () => {
+        const provider = outputReminder(sampleShapeDescriptor);
+        expect(provider.key).toBe('outputReminder');
+        expect(provider.type).toBe('prompt'); // Should be prompt type
+        expect(provider.title).toBe('Output Reminder');
+        expect(provider.index).toBe(100); // Default index
+    });
+
+    it('should return a provider object with the specified index', () => {
+        const customIndex = 200;
+        const provider = outputReminder(sampleShapeDescriptor, customIndex);
+        expect(provider.index).toBe(customIndex);
+    });
+
+    it('should return execute function that produces the correct reminder string', async () => {
+        const provider = outputReminder(sampleShapeDescriptor);
+        const result = await provider.execute();
+
+        // Define the expected compact JSON string part
+        const expectedJsonString = '{"name" : string, "count" : number, "isActive" : boolean}';
+
+        // Check if the result contains the base message and the specific JSON string
+        expect(result).toBe(`Remember to provide the output strictly in the specified JSON format: ${expectedJsonString}`);
+    });
+
+    it('should throw an error for an empty shape descriptor', () => {
+        // Use expect(...).toThrow() to check for the error
+        expect(() => {
+            outputReminder({});
+        }).toThrow('outputReminder requires a non-empty shapeDescriptor.');
     });
 }); 

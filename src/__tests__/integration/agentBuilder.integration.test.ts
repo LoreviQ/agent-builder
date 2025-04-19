@@ -37,7 +37,7 @@ describe('AgentBuilder Integration Tests', () => {
         expect(promptArg).toContain('Initial prompt content.');
         expect(promptArg).toContain('Prompt suffix content.');
         expect(promptArg.indexOf('Initial prompt content.')).toBeLessThan(promptArg.indexOf('Prompt suffix content.'));
-        expect(promptArg).toContain('**OUTPUT**');
+        expect(promptArg).toContain('# OUTPUT');
 
     });
-}); 
+});

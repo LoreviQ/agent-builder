@@ -6,7 +6,7 @@ import { processOutput } from "./processing/output";
 
 
 const defaultSettings: AgentBuilderSettings = {
-    endPromptString: "**OUTPUT**",
+    endPromptString: "# OUTPUT",
     model: "gemini-2.0-flash"
 };
 
@@ -72,7 +72,7 @@ export class AgentBuilder {
     // Formats provider content into a string
     private formatProviderContent(content: string, title?: string): string {
         if (title) {
-            return `**${title}**\n${content}`;
+            return `# ${title}\n${content}`;
         }
         return content;
     }

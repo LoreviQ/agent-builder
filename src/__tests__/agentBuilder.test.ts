@@ -13,7 +13,7 @@ const mockProcessOutput = processing.processOutput as jest.Mock;
 
 describe('AgentBuilder', () => {
     const initialPrompt = "Initial Prompt";
-    const defaultEndPromptString = "**OUTPUT**";
+    const defaultEndPromptString = "# OUTPUT";
 
     beforeEach(() => {
         mockGenerateTextResponse.mockReset();
@@ -61,8 +61,8 @@ describe('AgentBuilder', () => {
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
             "Content 3 No Title",
-            "**Provider 1**\nContent 1",
-            "**Provider 2**\nContent 2",
+            "# Provider 1\nContent 1",
+            "# Provider 2\nContent 2",
             "Suffix Content",
             defaultEndPromptString
         ]);
@@ -84,8 +84,8 @@ describe('AgentBuilder', () => {
 
         const expectedSystem = joinWithNewlines([
             initialSystem,
-            "**System Provider 1**\nSystem Content 1",
-            "**System Provider 2**\nSystem Content 2",
+            "# System Provider 1\nSystem Content 1",
+            "# System Provider 2\nSystem Content 2",
             "System Suffix"
         ]);
 
@@ -105,13 +105,13 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**Prompt 1**\nPrompt Content 1",
+            "# Prompt 1\nPrompt Content 1",
             defaultEndPromptString
         ]);
 
         const expectedSystem = joinWithNewlines([
             systemMessage,
-            "**System 1**\nSystem Content 1",
+            "# System 1\nSystem Content 1",
         ]);
 
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -137,7 +137,7 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**Working Provider**\nWorking Content",
+            "# Working Provider\nWorking Content",
             defaultEndPromptString
         ]);
 
@@ -156,7 +156,7 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**New Provider**\nNew Content",
+            "# New Provider\nNew Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -172,7 +172,7 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**Updated Provider**\nUpdated Content",
+            "# Updated Provider\nUpdated Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -197,7 +197,7 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**Explicit Key Provider**\nExplicit Content",
+            "# Explicit Key Provider\nExplicit Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -220,8 +220,8 @@ describe('AgentBuilder', () => {
         // Verify both are present initially
         let expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**To Keep**\nKeep Content",
-            "**To Delete**\nDelete Content",
+            "# To Keep\nKeep Content",
+            "# To Delete\nDelete Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -232,7 +232,7 @@ describe('AgentBuilder', () => {
         // Verify the deleted provider is gone
         expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "**To Keep**\nKeep Content",
+            "# To Keep\nKeep Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);

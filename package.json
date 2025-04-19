@@ -1,5 +1,5 @@
 {
-  "name": "agent-builder",
+  "name": "@olivertj/agent-builder",
   "version": "0.1.0",
   "description": "A flexible AI agent builder for structured prompts and responses",
   "main": "dist/index.js",
@@ -31,6 +31,9 @@
     "url": "https://github.com/LoreviQ/agent-builder/issues"
   },
   "homepage": "https://github.com/LoreviQ/agent-builder#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",

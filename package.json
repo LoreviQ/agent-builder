@@ -1,6 +1,6 @@
 {
   "name": "@olivertj/agent-builder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A flexible AI agent builder for structured prompts and responses",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

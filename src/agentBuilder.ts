@@ -7,7 +7,8 @@ import { processOutput } from "./processing/output";
 
 const defaultSettings: AgentBuilderSettings = {
     endPromptString: "# OUTPUT",
-    model: "gemini-2.0-flash"
+    model: "gemini-2.0-flash",
+    debug: false,
 };
 
 /**
@@ -128,7 +129,11 @@ export class AgentBuilder {
      */
     async prompt(): Promise<string> {
         const providerContent = await this.executeProviders('prompt');
-        return joinWithNewlines([providerContent, this.settings.endPromptString]);
+        const prompt = joinWithNewlines([providerContent, this.settings.endPromptString]);
+        if (this.settings.debug) {
+            console.log("Prompt:", prompt);
+        }
+        return prompt;
     }
 
     /**
@@ -137,7 +142,11 @@ export class AgentBuilder {
      */
     async system(): Promise<string> {
         const providerContent = await this.executeProviders('system');
-        return providerContent ?? "";
+        const system = providerContent ?? "";
+        if (this.settings.debug) {
+            console.log("System Instruction:", system);
+        }
+        return system;
     }
 
     /**
@@ -150,12 +159,17 @@ export class AgentBuilder {
     async generateResponse(): Promise<string | Record<string, any>> {
         const systemInstruction = await this.system();
         const userPrompt = await this.prompt();
-
         const response = await generateTextResponse(userPrompt, this.settings.model!, systemInstruction);
         if (!this.outputShape) {
             return response;
         }
-        // TODO: Handle graceful errors (repeat query ideally)
-        return processOutput(this.outputShape, response);
+        if (this.settings.debug) {
+            console.log("Raw Response:", response);
+        }
+        const processed_response = processOutput(this.outputShape, response);
+        if (this.settings.debug) {
+            console.log("Processed Response:", processed_response);
+        }
+        return processed_response;
     }
 }

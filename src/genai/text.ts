@@ -4,6 +4,11 @@ import { GoogleGenAI } from "@google/genai";
 let googleClientSingleton: GoogleGenAI | null = null;
 const googleClientInstance = () => {
     if (!googleClientSingleton) {
+        // Check if the API key is set
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("GEMINI_API_KEY environment variable is not set. Set GEMINI_API_KEY or use a different provider.");
+        }
+        // Initialize the singleton instance
         googleClientSingleton = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     }
     return googleClientSingleton;

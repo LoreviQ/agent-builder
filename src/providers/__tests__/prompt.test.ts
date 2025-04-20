@@ -1,10 +1,10 @@
 import { promptProvider, promptSuffixProvider, systemProvider, systemSuffixProvider } from "../prompt";
 
 describe("promptProvider", () => {
-    it("should return a provider object with the correct type and index", () => {
+    it("should return a provider object with the correct type and order", () => {
         const provider = promptProvider("test prompt");
         expect(provider.type).toBe("prompt");
-        expect(provider.index).toBe(Number.POSITIVE_INFINITY);
+        expect(provider.order).toBe(Number.NEGATIVE_INFINITY);
     });
 
     it("should return a provider object whose execute function returns the prompt", async () => {
@@ -16,10 +16,10 @@ describe("promptProvider", () => {
 });
 
 describe("systemProvider", () => {
-    it("should return a provider object with the correct type and index", () => {
+    it("should return a provider object with the correct type and order", () => {
         const provider = systemProvider("test system");
         expect(provider.type).toBe("system");
-        expect(provider.index).toBe(Number.POSITIVE_INFINITY);
+        expect(provider.order).toBe(Number.NEGATIVE_INFINITY);
     });
 
     it("should return a provider object whose execute function returns the system message", async () => {
@@ -31,10 +31,10 @@ describe("systemProvider", () => {
 });
 
 describe("promptSuffixProvider", () => {
-    it("should return a provider object with the correct type and index", () => {
+    it("should return a provider object with the correct type and order", () => {
         const provider = promptSuffixProvider("test suffix");
         expect(provider.type).toBe("prompt");
-        expect(provider.index).toBe(Number.NEGATIVE_INFINITY);
+        expect(provider.order).toBe(Number.POSITIVE_INFINITY);
     });
 
     it("should return a provider object whose execute function returns the suffix", async () => {
@@ -46,10 +46,10 @@ describe("promptSuffixProvider", () => {
 });
 
 describe("systemSuffixProvider", () => {
-    it("should return a provider object with the correct type and index", () => {
+    it("should return a provider object with the correct type and order", () => {
         const provider = systemSuffixProvider("test system suffix");
         expect(provider.type).toBe("system");
-        expect(provider.index).toBe(Number.NEGATIVE_INFINITY);
+        expect(provider.order).toBe(Number.POSITIVE_INFINITY);
     });
 
     it("should return a provider object whose execute function returns the system suffix", async () => {

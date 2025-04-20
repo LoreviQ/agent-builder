@@ -14,7 +14,7 @@ describe('AgentBuilder Integration Tests', () => {
         agent.addProvider({
             key: 'role',
             type: 'system',
-            index: 1,
+            order: 1,
             title: 'Role',
             execute: async () => 'Act as a helpful assistant.',
         });
@@ -23,7 +23,7 @@ describe('AgentBuilder Integration Tests', () => {
         agent.addProvider({
             key: 'task',
             type: 'prompt',
-            index: 1,
+            order: 1,
             title: 'Task',
             execute: async () => 'Explain the concept of integration testing.',
         });

@@ -139,7 +139,7 @@ export class Agent {
             return undefined;
         }
 
-        filteredProviders.sort((a, b) => b.index - a.index);
+        filteredProviders.sort((a, b) => a.order - b.order);
 
         const results = await Promise.all(
             filteredProviders.map(async (provider) => {

@@ -47,11 +47,11 @@ describe('AgentBuilder', () => {
         expect(await builder.system()).toBe(systemMessage);
     });
 
-    it('should format and join prompt providers in ascending order of index', async () => {
+    it('should format and join prompt providers in ascending order of order', async () => {
         const builder = new Agent(initialPrompt);
-        const provider1: Provider = { key: "p1", type: 'prompt', index: 10, title: "Provider 1", execute: async () => "Content 1" };
-        const provider2: Provider = { key: "p2", type: 'prompt', index: 5, title: "Provider 2", execute: async () => "Content 2" };
-        const provider3: Provider = { key: "p3", type: 'prompt', index: 20, execute: async () => "Content 3 No Title" }; // No title
+        const provider1: Provider = { key: "p1", type: 'prompt', order: 10, title: "Provider 1", execute: async () => "Content 1" };
+        const provider2: Provider = { key: "p2", type: 'prompt', order: 5, title: "Provider 2", execute: async () => "Content 2" };
+        const provider3: Provider = { key: "p3", type: 'prompt', order: 20, execute: async () => "Content 3 No Title" }; // No title
 
         builder.addProvider(provider1);
         builder.addProvider(provider2);
@@ -60,9 +60,9 @@ describe('AgentBuilder', () => {
 
         const expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "Content 3 No Title",
-            "# Provider 1\nContent 1",
             "# Provider 2\nContent 2",
+            "# Provider 1\nContent 1",
+            "Content 3 No Title",
             "Suffix Content",
             defaultEndPromptString
         ]);
@@ -70,12 +70,12 @@ describe('AgentBuilder', () => {
         expect(await builder.prompt()).toBe(expectedPrompt);
     });
 
-    it('should format and join system providers in ascending order of index', async () => {
+    it('should format and join system providers in ascending order of order', async () => {
         const initialSystem = "Initial System";
         const builder = new Agent(initialPrompt);
 
-        const provider1: Provider = { key: "s1", type: 'system', index: 15, title: "System Provider 1", execute: async () => "System Content 1" };
-        const provider2: Provider = { key: "s2", type: 'system', index: 2, title: "System Provider 2", execute: async () => "System Content 2" };
+        const provider1: Provider = { key: "s1", type: 'system', order: 15, title: "System Provider 1", execute: async () => "System Content 1" };
+        const provider2: Provider = { key: "s2", type: 'system', order: 2, title: "System Provider 2", execute: async () => "System Content 2" };
 
         builder.addProvider(provider1);
         builder.addProvider(provider2);
@@ -84,8 +84,8 @@ describe('AgentBuilder', () => {
 
         const expectedSystem = joinWithNewlines([
             initialSystem,
-            "# System Provider 1\nSystem Content 1",
             "# System Provider 2\nSystem Content 2",
+            "# System Provider 1\nSystem Content 1",
             "System Suffix"
         ]);
 
@@ -96,8 +96,8 @@ describe('AgentBuilder', () => {
         const builder = new Agent(initialPrompt);
         const systemMessage = "Base System Message";
 
-        const promptProvider1: Provider = { key: "p1", type: 'prompt', index: 1, title: "Prompt 1", execute: async () => "Prompt Content 1" };
-        const systemProvider1: Provider = { key: "s1", type: 'system', index: 1, title: "System 1", execute: async () => "System Content 1" };
+        const promptProvider1: Provider = { key: "p1", type: 'prompt', order: 1, title: "Prompt 1", execute: async () => "Prompt Content 1" };
+        const systemProvider1: Provider = { key: "s1", type: 'system', order: 1, title: "System 1", execute: async () => "System Content 1" };
 
         builder.addProvider(systemProvider(systemMessage));
         builder.addProvider(promptProvider1);
@@ -123,11 +123,11 @@ describe('AgentBuilder', () => {
         const errorProvider: Provider = {
             key: "error",
             type: 'prompt',
-            index: 1,
+            order: 1,
             title: "Error Provider",
             execute: async () => { throw new Error("Provider failed"); }
         };
-        const workingProvider: Provider = { key: "work", type: 'prompt', index: 2, title: "Working Provider", execute: async () => "Working Content" };
+        const workingProvider: Provider = { key: "work", type: 'prompt', order: 2, title: "Working Provider", execute: async () => "Working Content" };
 
         // Mock console.error to suppress error output during test
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -150,7 +150,7 @@ describe('AgentBuilder', () => {
 
     it('should add a new provider using setProvider', async () => {
         const builder = new Agent(initialPrompt);
-        const newProvider: Provider = { key: "newKey", type: 'prompt', index: 1, title: "New Provider", execute: async () => "New Content" };
+        const newProvider: Provider = { key: "newKey", type: 'prompt', order: 1, title: "New Provider", execute: async () => "New Content" };
 
         builder.setProvider(newProvider, "newKey");
 
@@ -164,8 +164,8 @@ describe('AgentBuilder', () => {
 
     it('should overwrite an existing provider using setProvider', async () => {
         const builder = new Agent(initialPrompt);
-        const originalProvider: Provider = { key: "originalKey", type: 'prompt', index: 1, title: "Original Provider", execute: async () => "Original Content" };
-        const updatedProvider: Provider = { key: "originalKey", type: 'prompt', index: 2, title: "Updated Provider", execute: async () => "Updated Content" };
+        const originalProvider: Provider = { key: "originalKey", type: 'prompt', order: 1, title: "Original Provider", execute: async () => "Original Content" };
+        const updatedProvider: Provider = { key: "originalKey", type: 'prompt', order: 2, title: "Updated Provider", execute: async () => "Updated Content" };
 
         builder.addProvider(originalProvider); // Add the original provider first
         builder.setProvider(updatedProvider, "originalKey"); // Overwrite with setProvider
@@ -180,8 +180,8 @@ describe('AgentBuilder', () => {
 
     it('should throw an error when adding a provider with a duplicate key using addProvider', () => {
         const builder = new Agent(initialPrompt);
-        const provider1: Provider = { key: "duplicateKey", type: 'prompt', index: 1, execute: async () => "Content 1" };
-        const provider2: Provider = { key: "duplicateKey", type: 'prompt', index: 2, execute: async () => "Content 2" };
+        const provider1: Provider = { key: "duplicateKey", type: 'prompt', order: 1, execute: async () => "Content 1" };
+        const provider2: Provider = { key: "duplicateKey", type: 'prompt', order: 2, execute: async () => "Content 2" };
 
         builder.addProvider(provider1);
 
@@ -190,7 +190,7 @@ describe('AgentBuilder', () => {
 
     it('should add a provider with an explicit key using addProvider', async () => {
         const builder = new Agent(initialPrompt);
-        const provider: Provider = { key: "internalKey", type: 'prompt', index: 1, title: "Explicit Key Provider", execute: async () => "Explicit Content" };
+        const provider: Provider = { key: "internalKey", type: 'prompt', order: 1, title: "Explicit Key Provider", execute: async () => "Explicit Content" };
         const explicitKey = "providedKey";
 
         builder.addProvider(provider, explicitKey);
@@ -203,7 +203,7 @@ describe('AgentBuilder', () => {
         expect(await builder.prompt()).toBe(expectedPrompt);
 
         // Ensure the provider was stored under the explicit key, not the internal one
-        const duplicateProvider: Provider = { key: "anotherInternalKey", type: 'prompt', index: 2, execute: async () => "Duplicate Content" };
+        const duplicateProvider: Provider = { key: "anotherInternalKey", type: 'prompt', order: 2, execute: async () => "Duplicate Content" };
         expect(() => builder.addProvider(duplicateProvider, explicitKey)).toThrow(`Provider with key "${explicitKey}" already exists.`);
         // Should not throw if using the internal key of the original provider
         expect(() => builder.addProvider(duplicateProvider, "internalKey")).not.toThrow();
@@ -211,8 +211,8 @@ describe('AgentBuilder', () => {
 
     it('should delete an existing provider', async () => {
         const builder = new Agent(initialPrompt);
-        const providerToDelete: Provider = { key: "toDelete", type: 'prompt', index: 1, title: "To Delete", execute: async () => "Delete Content" };
-        const remainingProvider: Provider = { key: "toKeep", type: 'prompt', index: 2, title: "To Keep", execute: async () => "Keep Content" };
+        const providerToDelete: Provider = { key: "toDelete", type: 'prompt', order: 1, title: "To Delete", execute: async () => "Delete Content" };
+        const remainingProvider: Provider = { key: "toKeep", type: 'prompt', order: 2, title: "To Keep", execute: async () => "Keep Content" };
 
         builder.addProvider(providerToDelete);
         builder.addProvider(remainingProvider);
@@ -220,8 +220,8 @@ describe('AgentBuilder', () => {
         // Verify both are present initially
         let expectedPrompt = joinWithNewlines([
             initialPrompt,
-            "# To Keep\nKeep Content",
             "# To Delete\nDelete Content",
+            "# To Keep\nKeep Content",
             defaultEndPromptString
         ]);
         expect(await builder.prompt()).toBe(expectedPrompt);
@@ -240,7 +240,7 @@ describe('AgentBuilder', () => {
 
     it('should do nothing when deleting a non-existent provider', async () => {
         const builder = new Agent(initialPrompt);
-        const existingProvider: Provider = { key: "exists", type: 'prompt', index: 1, title: "Exists", execute: async () => "Exists Content" };
+        const existingProvider: Provider = { key: "exists", type: 'prompt', order: 1, title: "Exists", execute: async () => "Exists Content" };
 
         builder.addProvider(existingProvider);
 

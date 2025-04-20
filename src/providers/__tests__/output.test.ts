@@ -15,13 +15,13 @@ describe('outputProvider', () => {
         expect(provider.key).toBe('outputShape');
         expect(provider.type).toBe('system');
         expect(provider.title).toBe('Output Shape');
-        expect(provider.index).toBe(-100); // Default index
+        expect(provider.order).toBe(100); // Default index
     });
 
     it('should return a provider object with the specified index', () => {
-        const customIndex = 50;
-        const provider = outputProvider(sampleShapeDescriptor, customIndex);
-        expect(provider.index).toBe(customIndex);
+        const customOrder = 50;
+        const provider = outputProvider(sampleShapeDescriptor, customOrder);
+        expect(provider.order).toBe(customOrder);
     });
 
     it('should return execute function that produces the correct description string', async () => {
@@ -75,13 +75,13 @@ describe('outputReminder', () => {
         expect(provider.key).toBe('outputReminder');
         expect(provider.type).toBe('prompt'); // Should be prompt type
         expect(provider.title).toBe('Output Reminder');
-        expect(provider.index).toBe(-100); // Default index
+        expect(provider.order).toBe(100); // Default index
     });
 
     it('should return a provider object with the specified index', () => {
         const customIndex = 200;
         const provider = outputReminder(sampleShapeDescriptor, customIndex);
-        expect(provider.index).toBe(customIndex);
+        expect(provider.order).toBe(customIndex);
     });
 
     it('should return execute function that produces the correct reminder string', async () => {

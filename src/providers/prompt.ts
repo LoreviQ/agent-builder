@@ -6,7 +6,7 @@ import { Provider } from "../types";
 export const promptProvider = (prompt: string): Provider => ({
     key: "prompt",
     type: 'prompt',
-    index: Number.POSITIVE_INFINITY,
+    order: Number.NEGATIVE_INFINITY,
     execute: async () => prompt
 });
 
@@ -16,7 +16,7 @@ export const promptProvider = (prompt: string): Provider => ({
 export const systemProvider = (system: string): Provider => ({
     key: "system",
     type: 'system',
-    index: Number.POSITIVE_INFINITY,
+    order: Number.NEGATIVE_INFINITY,
     execute: async () => system
 });
 
@@ -26,7 +26,7 @@ export const systemProvider = (system: string): Provider => ({
 export const promptSuffixProvider = (suffix: string): Provider => ({
     key: "promptSuffix",
     type: 'prompt',
-    index: Number.NEGATIVE_INFINITY,
+    order: Number.POSITIVE_INFINITY,
     execute: async () => suffix
 });
 
@@ -36,6 +36,6 @@ export const promptSuffixProvider = (suffix: string): Provider => ({
 export const systemSuffixProvider = (suffix: string): Provider => ({
     key: "systemSuffix",
     type: 'system',
-    index: Number.NEGATIVE_INFINITY,
+    order: Number.POSITIVE_INFINITY,
     execute: async () => suffix
 });

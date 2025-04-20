@@ -8,7 +8,8 @@ import { processOutput } from '../processing/output';
 export const replyAction: Action = {
     key: 'reply',
     title: 'Reply to User',
-    enabled: true, // Enabled by default
+    enabled: true, 
+    order: 0,
     execute: async (agent, params?: any) => {
         // TODO: Use params to potentially override model, etc.
 

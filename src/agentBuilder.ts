@@ -212,9 +212,11 @@ export class Agent {
      */
     async execute(): Promise<Record<string, any>> {
         const actionResults: Record<string, any> = {};
-        const enabledActions = Array.from(this.actions.values()).filter(action => action.enabled);
+        const enabledActions = Array.from(this.actions.values())
+            .filter(action => action.enabled)
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-        // Execute enabled actions sequentially
+        // Execute enabled actions sequentially in order
         for (const action of enabledActions) {
             try {
                 const result = await action.execute(this, undefined);

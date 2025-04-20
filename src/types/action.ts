@@ -10,6 +10,8 @@ export type Action = {
     title?: string;
     /** Whether the action is currently enabled for execution. Defaults to true. */
     enabled?: boolean;
+    /** The execution order of the action. Lower numbers execute first. Defaults to 0. */
+    order?: number;
     /**
      * The function to execute when the action is triggered.
      * @param agent The current Agent instance.

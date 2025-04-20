@@ -1,12 +1,11 @@
 import { AgentBuilder } from '../../agentBuilder';
 import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../../providers';
-import { generateResponse as originalGenerateResponse } from '../../genai';
+import { generateResponse } from '../../genai';
 
 // --- Mocking the actual GenAI call --- 
 jest.mock('../../genai', () => ({
     generateResponse: jest.fn().mockResolvedValue('Mocked AI Response'),
 }));
-
 
 describe('AgentBuilder Integration Tests', () => {
     it('should initialize, add providers, and generate a response', async () => {
@@ -18,13 +17,13 @@ describe('AgentBuilder Integration Tests', () => {
         agent.addProvider(systemSuffixProvider('System suffix content.'));
 
         // Generate response (will use the mock)
-        const response = await agent.generateResponse();
+        const response = await agent.execute();
 
         // Assertions
         expect(response).toBe('Mocked AI Response');
 
         // You could also check if the mock was called with the expected prompt/system instructions
-        const mockedGenerateResponse = originalGenerateResponse as jest.Mock;
+        const mockedGenerateResponse = generateResponse as jest.Mock;
         expect(mockedGenerateResponse).toHaveBeenCalled();
         const [promptArg, modelArg, systemArg] = mockedGenerateResponse.mock.calls[0];
 

@@ -299,19 +299,19 @@ describe('AgentBuilder', () => {
         expect(await builder.system()).toBe(""); // Assuming no other system providers were added
     });
 
-    it('generateResponse should return raw string if outputShape is not set', async () => {
+    it('execute should return raw string if outputShape is not set', async () => {
         const builder = new AgentBuilder(initialPrompt);
         const rawResponse = "This is a raw response.";
         mockGenerateTextResponse.mockResolvedValue(rawResponse);
 
-        const result = await builder.generateResponse();
+        const result = await builder.execute();
 
         expect(result).toBe(rawResponse);
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).not.toHaveBeenCalled();
     });
 
-    it('generateResponse should call processOutput if outputShape is set', async () => {
+    it('execute should call processOutput if outputShape is set', async () => {
         const builder = new AgentBuilder(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);
 
@@ -321,14 +321,14 @@ describe('AgentBuilder', () => {
         mockGenerateTextResponse.mockResolvedValue(rawResponse);
         mockProcessOutput.mockReturnValue(processedResponse); // Use mockReturnValue for sync mock
 
-        const result = await builder.generateResponse();
+        const result = await builder.execute();
 
         expect(result).toEqual(processedResponse);
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);
     });
 
-    it('generateResponse should propagate errors from processOutput', async () => {
+    it('execute should propagate errors from processOutput', async () => {
         const builder = new AgentBuilder(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);
 
@@ -340,7 +340,7 @@ describe('AgentBuilder', () => {
             throw processingError;
         });
 
-        await expect(builder.generateResponse()).rejects.toThrow(processingError);
+        await expect(builder.execute()).rejects.toThrow(processingError);
 
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);

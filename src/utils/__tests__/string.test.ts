@@ -1,11 +1,11 @@
-import { wrapInCodeBlock, joinWithNewlines } from '../string';
+import { wrapInJsonBlock, joinWithNewlines } from '../string';
 
 describe('string utils', () => {
-    describe('wrapInCodeBlock', () => {
+    describe('wrapInJsonBlock', () => {
         it('should wrap a string in json code block', () => {
             const input = '{\"key\": \"value\"}';
             const expected = '```json\n{\"key\": \"value\"}\n```';
-            expect(wrapInCodeBlock(input)).toEqual(expected);
+            expect(wrapInJsonBlock(input)).toEqual(expected);
         });
     });
 

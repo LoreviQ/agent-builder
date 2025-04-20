@@ -1,7 +1,7 @@
 import { Provider, ProviderType, AgentBuilderSettings, ShapeDescriptor } from "./types";
 import { promptProvider, outputProvider, outputReminder } from "./providers";
 import { joinWithNewlines } from "./utils";
-import { generateResponse as generateTextResponse } from "./genai";
+import { generateResponse } from "./genai";
 import { processOutput } from "./processing/output";
 
 
@@ -157,13 +157,13 @@ export class AgentBuilder {
      * Otherwise, it returns the raw text response.
      * @returns A promise that resolves to the AI model's response, either as a raw string or a parsed object.
      */
-    async generateResponse(): Promise<string | Record<string, any>> {
+    async execute(): Promise<string | Record<string, any>> {
         if (this.settings.debug) {
             console.log("Generating a response");
         }
         const systemInstruction = await this.system();
         const userPrompt = await this.prompt();
-        const response = await generateTextResponse(userPrompt, this.settings.model!, systemInstruction);
+        const response = await generateResponse(userPrompt, this.settings.model!, systemInstruction);
         if (this.settings.debug) {
             console.log("Raw Response:", response);
         }

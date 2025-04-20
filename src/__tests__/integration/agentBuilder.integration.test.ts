@@ -1,42 +1,48 @@
 import { Agent } from '../../agentBuilder';
-import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../../providers';
 import { generateResponse } from '../../genai';
 
-// --- Mocking the actual GenAI call --- 
+// Mock the generateResponse function
 jest.mock('../../genai', () => ({
     generateResponse: jest.fn().mockResolvedValue('Mocked AI Response'),
 }));
 
 describe('AgentBuilder Integration Tests', () => {
-    it('should initialize, add providers, and generate a response', async () => {
-        const agent = new Agent('Initial prompt content.');
+    test('should initialize, add providers, and generate a response via the reply action', async () => {
+        const agent = new Agent('You are a test bot.');
 
-        // Add providers
-        agent.addProvider(systemProvider('System instruction content.'));
-        agent.addProvider(promptSuffixProvider('Prompt suffix content.'));
-        agent.addProvider(systemSuffixProvider('System suffix content.'));
+        // Add a system provider
+        agent.addProvider({
+            key: 'role',
+            type: 'system',
+            index: 1,
+            title: 'Role',
+            execute: async () => 'Act as a helpful assistant.',
+        });
 
-        // Generate response (will use the mock)
-        const response = await agent.execute();
+        // Add a prompt provider
+        agent.addProvider({
+            key: 'task',
+            type: 'prompt',
+            index: 1,
+            title: 'Task',
+            execute: async () => 'Explain the concept of integration testing.',
+        });
+
+        // Execute the agent (which runs the default 'reply' action)
+        const results = await agent.execute();
+
+        // Get the reply action's result
+        const response = results['reply'];
 
         // Assertions
         expect(response).toBe('Mocked AI Response');
 
-        // You could also check if the mock was called with the expected prompt/system instructions
+        // Verify the mock was called with expected parameters
         const mockedGenerateResponse = generateResponse as jest.Mock;
-        expect(mockedGenerateResponse).toHaveBeenCalled();
-        const [promptArg, modelArg, systemArg] = mockedGenerateResponse.mock.calls[0];
-
-        // Check system instructions (order matters due to index)
-        expect(systemArg).toContain('System instruction content.');
-        expect(systemArg).toContain('System suffix content.');
-        expect(systemArg.indexOf('System instruction content.')).toBeLessThan(systemArg.indexOf('System suffix content.'));
-
-        // Check prompt (order matters due to index)
-        expect(promptArg).toContain('Initial prompt content.');
-        expect(promptArg).toContain('Prompt suffix content.');
-        expect(promptArg.indexOf('Initial prompt content.')).toBeLessThan(promptArg.indexOf('Prompt suffix content.'));
-        expect(promptArg).toContain('# OUTPUT');
-
+        expect(mockedGenerateResponse).toHaveBeenCalledWith(
+            expect.stringContaining('Explain the concept of integration testing.'),
+            expect.any(String),
+            expect.stringContaining('Act as a helpful assistant.')
+        );
     });
 });

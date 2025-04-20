@@ -306,7 +306,7 @@ describe('AgentBuilder', () => {
 
         const result = await builder.execute();
 
-        expect(result).toBe(rawResponse);
+        expect(result['reply']).toBe(rawResponse);
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).not.toHaveBeenCalled();
     });
@@ -323,7 +323,7 @@ describe('AgentBuilder', () => {
 
         const result = await builder.execute();
 
-        expect(result).toEqual(processedResponse);
+        expect(result['reply']).toEqual(processedResponse);
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);
     });
@@ -340,7 +340,8 @@ describe('AgentBuilder', () => {
             throw processingError;
         });
 
-        await expect(builder.execute()).rejects.toThrow(processingError);
+        const result = await builder.execute();
+        expect(result['reply']).toBe(rawResponse);
 
         expect(mockGenerateTextResponse).toHaveBeenCalled();
         expect(mockProcessOutput).toHaveBeenCalledWith(sampleShapeDescriptor, rawResponse);

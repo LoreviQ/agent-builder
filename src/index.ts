@@ -1,8 +1,8 @@
-export { AgentBuilder } from './agentBuilder';
+export { Agent as AgentBuilder } from './agentBuilder';
 export { 
     Provider, 
     ProviderType, 
-    AgentBuilderSettings, 
+    AgentSettings as AgentBuilderSettings, 
     ShapeDescriptor 
 } from './types';
 export { 

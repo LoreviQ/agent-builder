@@ -1,4 +1,4 @@
-import { AgentBuilder } from '../agentBuilder';
+import { Agent } from '../agentBuilder';
 import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../providers';
 import { Provider, ShapeDescriptor } from '../types';
 import { joinWithNewlines } from '../utils';
@@ -26,21 +26,21 @@ describe('AgentBuilder', () => {
     };
 
     it('should initialize with a default prompt and default settings', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         expect(await builder.prompt()).toBe(`${initialPrompt}\n\n${defaultEndPromptString}`);
         expect(await builder.system()).toBe("");
     });
 
     it('should initialize with a default prompt and custom settings', async () => {
         const customEndPromptString = "CUSTOM_OUTPUT";
-        const builder = new AgentBuilder(initialPrompt, { endPromptString: customEndPromptString });
+        const builder = new Agent(initialPrompt, { endPromptString: customEndPromptString });
         expect(await builder.prompt()).toBe(`${initialPrompt}\n\n${customEndPromptString}`);
         expect(await builder.system()).toBe("");
     });
 
     it('should return the correct system message when a system provider is added', async () => {
         const systemMessage = "System Message";
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         builder.addProvider(systemProvider(systemMessage));
 
         expect(await builder.prompt()).toBe(`${initialPrompt}\n\n${defaultEndPromptString}`);
@@ -48,7 +48,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should format and join prompt providers in ascending order of index', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const provider1: Provider = { key: "p1", type: 'prompt', index: 10, title: "Provider 1", execute: async () => "Content 1" };
         const provider2: Provider = { key: "p2", type: 'prompt', index: 5, title: "Provider 2", execute: async () => "Content 2" };
         const provider3: Provider = { key: "p3", type: 'prompt', index: 20, execute: async () => "Content 3 No Title" }; // No title
@@ -72,7 +72,7 @@ describe('AgentBuilder', () => {
 
     it('should format and join system providers in ascending order of index', async () => {
         const initialSystem = "Initial System";
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
 
         const provider1: Provider = { key: "s1", type: 'system', index: 15, title: "System Provider 1", execute: async () => "System Content 1" };
         const provider2: Provider = { key: "s2", type: 'system', index: 2, title: "System Provider 2", execute: async () => "System Content 2" };
@@ -93,7 +93,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should handle a mix of prompt and system providers correctly', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const systemMessage = "Base System Message";
 
         const promptProvider1: Provider = { key: "p1", type: 'prompt', index: 1, title: "Prompt 1", execute: async () => "Prompt Content 1" };
@@ -119,7 +119,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should handle provider execution errors gracefully', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const errorProvider: Provider = {
             key: "error",
             type: 'prompt',
@@ -149,7 +149,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should add a new provider using setProvider', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const newProvider: Provider = { key: "newKey", type: 'prompt', index: 1, title: "New Provider", execute: async () => "New Content" };
 
         builder.setProvider(newProvider, "newKey");
@@ -163,7 +163,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should overwrite an existing provider using setProvider', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const originalProvider: Provider = { key: "originalKey", type: 'prompt', index: 1, title: "Original Provider", execute: async () => "Original Content" };
         const updatedProvider: Provider = { key: "originalKey", type: 'prompt', index: 2, title: "Updated Provider", execute: async () => "Updated Content" };
 
@@ -179,7 +179,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should throw an error when adding a provider with a duplicate key using addProvider', () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const provider1: Provider = { key: "duplicateKey", type: 'prompt', index: 1, execute: async () => "Content 1" };
         const provider2: Provider = { key: "duplicateKey", type: 'prompt', index: 2, execute: async () => "Content 2" };
 
@@ -189,7 +189,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should add a provider with an explicit key using addProvider', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const provider: Provider = { key: "internalKey", type: 'prompt', index: 1, title: "Explicit Key Provider", execute: async () => "Explicit Content" };
         const explicitKey = "providedKey";
 
@@ -210,7 +210,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should delete an existing provider', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const providerToDelete: Provider = { key: "toDelete", type: 'prompt', index: 1, title: "To Delete", execute: async () => "Delete Content" };
         const remainingProvider: Provider = { key: "toKeep", type: 'prompt', index: 2, title: "To Keep", execute: async () => "Keep Content" };
 
@@ -239,7 +239,7 @@ describe('AgentBuilder', () => {
     });
 
     it('should do nothing when deleting a non-existent provider', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const existingProvider: Provider = { key: "exists", type: 'prompt', index: 1, title: "Exists", execute: async () => "Exists Content" };
 
         builder.addProvider(existingProvider);
@@ -254,7 +254,7 @@ describe('AgentBuilder', () => {
     });
 
     it('setOutput should add outputShape and outputReminder providers', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);
 
         const systemInstruction = await builder.system();
@@ -272,7 +272,7 @@ describe('AgentBuilder', () => {
     });
 
     it('setOutput should remove outputShape and outputReminder providers when called with no arguments', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
 
         // Set an initial shape
         builder.setOutput(sampleShapeDescriptor);
@@ -300,7 +300,7 @@ describe('AgentBuilder', () => {
     });
 
     it('execute should return raw string if outputShape is not set', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         const rawResponse = "This is a raw response.";
         mockGenerateTextResponse.mockResolvedValue(rawResponse);
 
@@ -312,7 +312,7 @@ describe('AgentBuilder', () => {
     });
 
     it('execute should call processOutput if outputShape is set', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);
 
         const rawResponse = '```json{"characterName": "Bob", "level": "5"}```';
@@ -329,7 +329,7 @@ describe('AgentBuilder', () => {
     });
 
     it('execute should propagate errors from processOutput', async () => {
-        const builder = new AgentBuilder(initialPrompt);
+        const builder = new Agent(initialPrompt);
         builder.setOutput(sampleShapeDescriptor);
 
         const rawResponse = 'invalid json';

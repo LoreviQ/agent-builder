@@ -1,4 +1,4 @@
-import { AgentBuilder } from '../../agentBuilder';
+import { Agent } from '../../agentBuilder';
 import { systemProvider, promptSuffixProvider, systemSuffixProvider } from '../../providers';
 import { generateResponse } from '../../genai';
 
@@ -9,7 +9,7 @@ jest.mock('../../genai', () => ({
 
 describe('AgentBuilder Integration Tests', () => {
     it('should initialize, add providers, and generate a response', async () => {
-        const agent = new AgentBuilder('Initial prompt content.');
+        const agent = new Agent('Initial prompt content.');
 
         // Add providers
         agent.addProvider(systemProvider('System instruction content.'));

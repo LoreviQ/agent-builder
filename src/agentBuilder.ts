@@ -1,11 +1,11 @@
-import { Provider, ProviderType, AgentBuilderSettings, ShapeDescriptor } from "./types";
+import { Provider, ProviderType, AgentSettings, ShapeDescriptor } from "./types";
 import { promptProvider, outputProvider, outputReminder } from "./providers";
 import { joinWithNewlines } from "./utils";
 import { generateResponse } from "./genai";
 import { processOutput } from "./processing/output";
 
 
-const defaultSettings: AgentBuilderSettings = {
+const defaultSettings: AgentSettings = {
     endPromptString: "# OUTPUT",
     model: "gemini-2.0-flash",
     debug: false,
@@ -16,9 +16,9 @@ const defaultSettings: AgentBuilderSettings = {
  * Allows for structured prompt generation, system message definition, and optional
  * typed output processing.
  */
-export class AgentBuilder {
+export class Agent {
     private providers: Map<string, Provider> = new Map();
-    private settings: AgentBuilderSettings;
+    private settings: AgentSettings;
     private outputShape: ShapeDescriptor | null = null;
 
     /**
@@ -26,7 +26,7 @@ export class AgentBuilder {
      * @param prompt The initial base prompt content.
      * @param settings Optional settings to override defaults.
      */
-    constructor(prompt: string, settings?: AgentBuilderSettings) {
+    constructor(prompt: string, settings?: AgentSettings) {
         console.log("Creating a new AgentBuilder instance");
         this.settings = { ...defaultSettings, ...settings };
         const initialProvider = promptProvider(prompt);
@@ -158,22 +158,13 @@ export class AgentBuilder {
      * @returns A promise that resolves to the AI model's response, either as a raw string or a parsed object.
      */
     async execute(): Promise<string | Record<string, any>> {
-        if (this.settings.debug) {
-            console.log("Generating a response");
-        }
         const systemInstruction = await this.system();
         const userPrompt = await this.prompt();
         const response = await generateResponse(userPrompt, this.settings.model!, systemInstruction);
-        if (this.settings.debug) {
-            console.log("Raw Response:", response);
-        }
         if (!this.outputShape) {
             return response;
         }
         const processed_response = processOutput(this.outputShape, response);
-        if (this.settings.debug) {
-            console.log("Processed Response:", processed_response);
-        }
         return processed_response;
     }
 }

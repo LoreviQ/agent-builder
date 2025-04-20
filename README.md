@@ -57,10 +57,10 @@ agent.addProvider(myApiProvider);
 // 4. Add actions (Agent capabilities) - *Roadmap Feature*
 // agent.addAction(mySendMessageAction);
 
-// 5. Generate a response
+// 5. execute runtime
 async function runAgent() {
     try {
-        const response = await agent.generateResponse();
+        const response = await agent.execute();
         console.log("Agent Response:", response);
 
         // Future: Trigger evaluations and actions based on response/state

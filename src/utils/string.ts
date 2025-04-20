@@ -1,4 +1,4 @@
-export function wrapInCodeBlock(string: string): string {
+export function wrapInJsonBlock(string: string): string {
     return `\`\`\`json\n${string}\n\`\`\``;
 }
 

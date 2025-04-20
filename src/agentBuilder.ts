@@ -164,11 +164,11 @@ export class AgentBuilder {
         const systemInstruction = await this.system();
         const userPrompt = await this.prompt();
         const response = await generateTextResponse(userPrompt, this.settings.model!, systemInstruction);
-        if (!this.outputShape) {
-            return response;
-        }
         if (this.settings.debug) {
             console.log("Raw Response:", response);
+        }
+        if (!this.outputShape) {
+            return response;
         }
         const processed_response = processOutput(this.outputShape, response);
         if (this.settings.debug) {

@@ -24,7 +24,6 @@ const models_to_provider: Record<string, string> = {
 // adapter pattern for different providers and models
 export async function generateResponse(prompt: string, model: string, systemInstruction: string = "") {
     let generatedContent: string;
-    console.log(`Generating response for model: ${model}`);
     switch (models_to_provider[model]) {
         case "google":
             generatedContent = await googleGenerate(prompt, model, systemInstruction);
@@ -39,7 +38,6 @@ export async function generateResponse(prompt: string, model: string, systemInst
 // uses google genai to generate a response
 async function googleGenerate(prompt: string, model: string, systemInstruction: string = ""): Promise<string> {
     try {
-        console.log(`Obtaining singleton instance of GoogleGenAI`);
         // Use the singleton instance
         const googleClient = googleClientInstance();
         const response = await googleClient.models.generateContent({
@@ -49,7 +47,6 @@ async function googleGenerate(prompt: string, model: string, systemInstruction: 
                 systemInstruction: systemInstruction,
             },
         });
-        console.log(`Response from Google GenAI: ${JSON.stringify(response)}`);
         if (!response.text) {
             throw new Error("No response from Google GenAI");
         }

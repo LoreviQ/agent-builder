@@ -13,3 +13,4 @@ export {
     outputProvider, 
     outputReminder 
 } from './providers';
+export { wrapInJsonBlock } from './utils';

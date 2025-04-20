@@ -133,8 +133,13 @@ export class Agent {
         return content;
     }
 
-    private async executeProviders(type: ProviderType): Promise<string | undefined> {
-        const filteredProviders = Array.from(this.providers.values()).filter(provider => provider.type === type);
+    // Modified executeProviders to filter by actionKey
+    private async executeProviders(type: ProviderType, actionKey: string): Promise<string | undefined> {
+        const filteredProviders = Array.from(this.providers.values())
+            .filter(provider =>
+                provider.type === type &&
+                (provider.actionKey === actionKey || provider.actionKey === undefined)
+            );
         if (filteredProviders.length === 0) {
             return undefined;
         }
@@ -147,7 +152,7 @@ export class Agent {
                     const content = await provider.execute();
                     return this.formatProviderContent(content, provider.title);
                 } catch (error) {
-                    console.error(`Error executing provider "${provider.title}":`, error);
+                    console.error(`Error executing provider "${provider.title ?? provider.key}":`, error);
                     return undefined;
                 }
             })
@@ -157,46 +162,49 @@ export class Agent {
     }
 
     /**
-     * Configures the agent to expect a specific JSON output shape.
+     * Configures the agent to expect a specific JSON output shape for the 'reply' action.
      * Adds providers to guide the AI model and automatically parses the response.
      * @param shapeDescriptor An object describing the expected JSON structure, types, and descriptions. If not provided, the output shape is removed.
      * @returns The Agent instance for chaining.
      */
     setOutput(shapeDescriptor?: ShapeDescriptor): this {
+        const actionKey = 'reply';
         if (!shapeDescriptor) {
             this.deleteProvider('outputShape');
             this.deleteProvider('outputReminder');
             this.outputShape = null;
             return this;
         }
-        this.setProvider(outputProvider(shapeDescriptor), 'outputShape');
-        this.setProvider(outputReminder(shapeDescriptor), 'outputReminder');
+        this.setProvider(outputProvider(shapeDescriptor, 100, actionKey), 'outputShape');
+        this.setProvider(outputReminder(shapeDescriptor, 100, actionKey), 'outputReminder');
         this.outputShape = shapeDescriptor;
         return this;
     }
 
     /**
-     * Asynchronously executes all 'prompt' type providers and formats them into the final user prompt string.
-          * @returns A promise that resolves to the fully assembled user prompt string.
+     * Asynchronously executes 'prompt' type providers for a specific action and formats them into the final user prompt string.
+     * @param actionKey The key of the action for which to generate the prompt. Defaults to 'reply'.
+     * @returns A promise that resolves to the fully assembled user prompt string.
      */
-    async prompt(): Promise<string> {
-        const providerContent = await this.executeProviders('prompt');
+    async prompt(actionKey: string = 'reply'): Promise<string> {
+        const providerContent = await this.executeProviders('prompt', actionKey);
         const prompt = joinWithNewlines([providerContent, this.settings.endPromptString]);
         if (this.settings.debug) {
-            console.log("Prompt:", prompt);
+            console.log(`Prompt (Action: ${actionKey}):`, prompt);
         }
         return prompt;
     }
 
     /**
-     * Asynchronously executes all 'system' type providers and formats them into the final system instruction string.
-          * @returns A promise that resolves to the fully assembled system instruction string, or an empty string if no system providers exist.
+     * Asynchronously executes 'system' type providers for a specific action and formats them into the final system instruction string.
+     * @param actionKey The key of the action for which to generate the system instructions. Defaults to 'reply'.
+     * @returns A promise that resolves to the fully assembled system instruction string, or an empty string if no matching system providers exist.
      */
-    async system(): Promise<string> {
-        const providerContent = await this.executeProviders('system');
+    async system(actionKey: string = 'reply'): Promise<string> {
+        const providerContent = await this.executeProviders('system', actionKey);
         const system = providerContent ?? "";
         if (this.settings.debug) {
-            console.log("System Instruction:", system);
+            console.log(`System Instruction (Action: ${actionKey}):`, system);
         }
         return system;
     }
@@ -216,7 +224,6 @@ export class Agent {
             .filter(action => action.enabled)
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-        // Execute enabled actions sequentially in order
         for (const action of enabledActions) {
             try {
                 const result = await action.execute(this, undefined);

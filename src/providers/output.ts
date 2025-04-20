@@ -1,6 +1,6 @@
 import { Provider, ShapeDescriptor } from "../types";
 
-export const outputProvider = (shapeDescriptor: ShapeDescriptor, order = 100): Provider => {
+export const outputProvider = (shapeDescriptor: ShapeDescriptor, order = 100, actionKey: string = 'reply'): Provider => {
     // Check if the shapeDescriptor is empty
     if (Object.keys(shapeDescriptor).length === 0) {
         throw new Error('outputProvider requires a non-empty shapeDescriptor.');
@@ -11,6 +11,7 @@ export const outputProvider = (shapeDescriptor: ShapeDescriptor, order = 100): P
         type: 'system',
         title: `Output Shape`,
         order,
+        actionKey, // Added actionKey
         execute: async () => {
             // No need to check for empty here again, as it's handled above
             const entries = Object.entries(shapeDescriptor);
@@ -26,7 +27,7 @@ export const outputProvider = (shapeDescriptor: ShapeDescriptor, order = 100): P
     };
 };
 
-export const outputReminder = (shapeDescriptor: ShapeDescriptor, order = 100): Provider => {
+export const outputReminder = (shapeDescriptor: ShapeDescriptor, order = 100, actionKey: string = 'reply'): Provider => {
     // Check if the shapeDescriptor is empty
     if (Object.keys(shapeDescriptor).length === 0) {
         throw new Error('outputReminder requires a non-empty shapeDescriptor.');
@@ -37,6 +38,7 @@ export const outputReminder = (shapeDescriptor: ShapeDescriptor, order = 100): P
         type: 'prompt',
         title: `Output Reminder`,
         order,
+        actionKey, // Added actionKey
         execute: async () => {
             // Generate the compact JSON string representation
             const entries = Object.entries(shapeDescriptor);

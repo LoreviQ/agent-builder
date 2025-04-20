@@ -27,6 +27,7 @@ export class AgentBuilder {
      * @param settings Optional settings to override defaults.
      */
     constructor(prompt: string, settings?: AgentBuilderSettings) {
+        console.log("Creating a new AgentBuilder instance");
         this.settings = { ...defaultSettings, ...settings };
         const initialProvider = promptProvider(prompt);
         this.providers.set(initialProvider.key, initialProvider);

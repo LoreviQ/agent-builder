@@ -18,6 +18,7 @@ const googleClientInstance = () => {
 const models_to_provider: Record<string, string> = {
     "gemini-2.0-flash": "google",
     "gemini-2.5-pro-exp-03-25": "google",
+    "gemini-2.5-flash-preview-04-17": "google",
     // TODO: Add more models and providers
 }
 
